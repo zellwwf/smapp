@@ -36,7 +36,7 @@ Using the terminal, the app will occasionally inform you of what is happening. T
 
 
 ## Start Development on Vagrant
-*tested on scotch/box.*
+*attempted test on scotch/box.*
 
 These commands should get you started if you have
 > vagrant init scotch/box
@@ -54,6 +54,20 @@ The good thing about Scotchbox is you only need to only update some packages. It
 has node and npm.
 
 If vagrant asks for a password or username, just use *vagrant*
+
+**Fail to start bug**
+
+> Error: /usr/lib/x86_64-linux-gnu/libstdc++.so.6: version GLIBCXX_3.4.21 not found 
+
+
+even though i checked the library is there, it is not working. Will go bug hunting later,
+it's worth noting that I developed on **ubuntu 16.04.1 LTS**
+This error occurs when starting the app, effectively crashing before even starting.
+
+> node app.js
+
+
+
 ## Why there is no email verification
 The reason is that I cannot find a way to generate the verification links without deploying
 the application somewhere. This required more time on my part that I wasn't prepared for.
