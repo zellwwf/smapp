@@ -7,21 +7,13 @@
 
 So far, the app is single user only. Ie the loggin mechanism is just an almost entirely global boolean, not really in the session per user.
 
-## Routes This includes the following routes:
-* GET   http://localhost:2200/
-* GET   http://localhost:2200/register
-* POST   http://localhost:2200/login
-* GET   http://localhost:2200/logout
-
 # Getting Started with Development
 * models/
   ..* user.js
 * node_modules/
   ..* node stuff
 * views/
-  ..* error.pug
   ..* index.pug
-  ..* users.pug
 * app.js
 * api.js
 * config.js
@@ -33,16 +25,36 @@ So far, the app is single user only. Ie the loggin mechanism is just an almost e
 1. Node.JS
 2. NPM
 
-If you have npm, simply pull this repo and install packages using npm
+## Start Development locally
+If you have npm, simply clone this repo and install packages using npm
 > npm install
 
+> node app.js
 
-## Development on Vagrant
+After you start the app, it will tell you give you visit link. Since we're not using regular ports, check the link.
+Using the terminal, the app will occasionally inform you of what is happening. That's good to keep in mind.
 
-## Things that aren't working properly
-1. User registration isn't making sure that only 1 user per email account
-2. User sign in fails to redirect
-3.
+
+## Start Development on Vagrant
+*tested on scotch/box.*
+
+These commands should get you started if you have
+> vagrant init scotch/box
+> vagrant up
+
+then you can ssh, using vagrant or if on Windows use putty's ssh (see [putty](http://www.putty.org))
+> vagrant ssh
+> sudo apt-get update
+> sudo apt-get upgrade -Y
+
+Once you're inside the vm and done with updating the packages follow the steps in **Start Development Locally** section.
+The good thing about Scotchbox is you only need to only update some packages. It already
+has node and npm.
+
+
+
+
+
 ## Why there is no email verification
 The reason is that I cannot find a way to generate the verification links without deploying
-the application somewhere. This required more time on my part.
+the application somewhere. This required more time on my part that I wasn't prepared for.
