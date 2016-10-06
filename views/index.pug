@@ -2,13 +2,19 @@ html
   head
     title Hello App
   body
-    h1 sign in
-    form(method='POST' action='/login')
-      label(for='name') email:
-      input#semail.form-control(type='text', placeholder='email@domain.com' name='semail')
-      label(for='password') password:
-      input#spassword.form-control(type='password', name='spassword')
-      button.btn.btn-primary(type='submit') Sign in
+    if loggedin
+      h3 welcome!
+      form(method='POST' action='/logout')
+        button.btn.btn-primary(type='submit') Sign Out
+    else
+      h3 you are not signed in...
+      h1 sign in
+      form(method='POST' action='/login')
+        label(for='name') email:
+        input#semail.form-control(type='text', placeholder='email@domain.com' name='semail')
+        label(for='password') password:
+        input#spassword.form-control(type='password', name='spassword')
+        button.btn.btn-primary(type='submit') Sign in
 
     h1 sign up
     form(method='POST' action='/register')

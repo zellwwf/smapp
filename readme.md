@@ -5,10 +5,11 @@
 2. You can log in.
 3. You can signup locally, or automatically log in using google.
 
+So far, the app is single user only. Ie the loggin mechanism is just an almost entirely global boolean, not really in the session per user.
+
 ## Routes This includes the following routes:
 * GET   http://localhost:2200/
 * GET   http://localhost:2200/register
-* GET   http://localhost:2200/users -- not visible yet
 * POST   http://localhost:2200/login
 * GET   http://localhost:2200/logout
 

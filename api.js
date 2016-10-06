@@ -8,13 +8,14 @@ var app         = require('./app');
 var user        = require('./models/user');
 var config      = require('./config');
 //-------------------------------------------------------------------
+
 var OAuth2 = google.auth.OAuth2;
 var oauth2Client = new OAuth2(config.oauth2_clientID, config.oauth2_client_secret, config.oauth2_callback)
 
 // Pages
 function registerPage(req,res,next)
 {
-  res.render('index.pug',{fullname:'', email:''});
+  res.render('index.pug',{loggedin:app.loggedin, fullname:'', email:''});
 }
 
 
@@ -55,6 +56,7 @@ function loginUser(req,res,next)
   if (app.loggedin) {
     console.log('already logged in');
   }
+  app.loggedin = true;
   console.log('user logging in...');
   user.checkPassword(req.body.semail,req.body.spassword, login)
   res.redirect('/');
@@ -63,7 +65,9 @@ function loginUser(req,res,next)
 
 function logoutUser(req,res,next)
 {
+  console.log('user logging out...');
   app.loggedin = false;
+  res.redirect('/')
 }
 
 function gcallback(req,res,next)
@@ -126,15 +130,13 @@ function login(err,isMatch)
 router.get('/', registerPage);
 router.post('/register', registerUser);
 
-//  -- a page that requires authentication (requires login)
-router.get('/users', usersPage);
-
 //  -- login/out route
 router.post('/login', loginUser);
-router.get('/logout', logoutUser);
+router.post('/logout', logoutUser);
 
 //  -- google routes
 router.get('/google', googleAuth);
 router.get('/googlecallback', gcallback);
+
 //router.get('/googlecallback?code=')
 exports.router = router;
