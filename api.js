@@ -14,8 +14,9 @@ var oauth2Client = new OAuth2(config.oauth2_clientID, config.oauth2_client_secre
 // Pages
 function registerPage(req,res,next)
 {
-  res.render('index.pug');
+  res.render('index.pug',{fullname:'', email:''});
 }
+
 
 function usersPage(req,res,next)
 {
@@ -72,17 +73,20 @@ function gcallback(req,res,next)
     if (err) {
       console.log('Error Obtaining tokens');
     } else {
-      console.log('... Obtaining google data');
-      oauth2Client.setCredentials(tokens);
 
-      console.log('... discovering');
+      console.log('.. Obtaining google data');
+      oauth2Client.setCredentials(tokens);
       var plus = google.plus('v1');
 
       plus.people.get({userId: 'me', auth: oauth2Client}, function(error, response){
         if (error) {
           console.log(error);
         } else {
-          console.log(response);
+          console.log('user data obtained');
+          var name = response.name.givenName + ' ' + response.name.familyName;
+          var email = response.emails[0].value;
+          //redirect to homepage with the info
+          res.render('index.pug',{fullname:name, email:email});
         }
       });
       //redirect after obtaining tokens?
