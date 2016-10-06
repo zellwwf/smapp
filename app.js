@@ -1,30 +1,29 @@
-exports = module.exports = {};
 var express     = require('express');
 var app         = express();
-var router = require('./router')
 var path    = require("path");
 var bodyParser  = require('body-parser');
 var morgan      = require('morgan');
 var mongoose    = require('mongoose');
-var everify = require('email-verification')(mongoose);
-var jwt    = require('jsonwebtoken');
 var config = require('./config');
 
 //  setup ports and databases, initialize
 var port = process.env.PORT || config.port;
-console.log('server starting listening on port: ' + port)
+console.log('app is starting...')
 
 // use mongoose to connect
 mongoose.connect(config.database);
-var db = mongoose.connection
+var db = mongoose.connection;
 
-exports.db = db;
+
 
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
-  console.log('database connected')
+  console.log('database connected!')
 });
 
+var router = require('./api')
+console.log('api loaded!')
+exports.db = db;
 app.set('secret', config.secret);
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -34,6 +33,9 @@ app.use(morgan('dev'));
 
 // routes
 app.use('/',router)
+console.log('routes established!');
 
 app.listen(port);
-console.log('routes established!');
+console.log('app starting listening on port: ' + port)
+
+console.log('visit http://localhost:'+port);
