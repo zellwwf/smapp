@@ -30,24 +30,17 @@ function usersPage(req,res,next)
 }
 
 // Functions & Actions
-function registerUser( req, res,next)
+function registerUser(req,res,next)
 {
-  if (user.checkUserExists(req.body.email)) {
+  user.checkUserExists(req.body.email);
+  
+  if (foundUser) {
     console.log('user already registered!');
     res.redirect('/');
   }
   else
   {
-    console.log('user doesnt exist, register anew!');
-    var userModel = app.db.model('User',user.UserSchema);
-    var newUser = new userModel(req.body);
-
-    var pass = user.hashPTPassword(newUser.password);
-    newUser.password = pass;
-    newUser.save();
-
-    console.log('user:' + req.body.email + ' registered...');
-    console.log('pass:' + newUser.password)
+    register(req.body)
     console.log('redirect back to index');
     res.redirect('/');
   }
@@ -76,6 +69,7 @@ function login(err,isMatch) {
  }
 }
 
+
 function logoutUser(req,res,next)
 {
   app.loggedin = false;
@@ -84,6 +78,17 @@ function logoutUser(req,res,next)
 function gcallback(req,res,next)
 {
 
+}
+
+function register(userdata,next)
+{
+  console.log('registering a user');
+  var userModel = app.db.model('User',user.UserSchema);
+  var newUser = new userModel(body);
+
+  var pass = user.hashPTPassword(newUser.password);
+  newUser.password = pass;
+  newUser.save();
 }
 
 // HTTP ROUTES

@@ -16,18 +16,21 @@ var UserSchema = new Schema({
 var UserModel = mongoose.model('User', UserSchema);
 
 // Define Functions
-function checkUserExists(error,email)
+function checkUserExists(email, cb)
 {
   console.log('Checking if user: '+ email + ' exists...');
-  var found = false;
+  var isFound = undefined;
+
   UserModel.findOne({email:email}, function(err, doc){
     if (err) {
-      found = false;
+      isFound = false;
+      console.log('error:'+ err);
+      cb(err, isFound)
     } else {
-      found = true;
+      isFound = true;
+      cb(null, isFound)
     }
   });
-  return found;
 }
 
 function checkPassword(email,prov_password, cb)
@@ -47,22 +50,11 @@ function checkPassword(email,prov_password, cb)
 function hashPTPassword(password)
 {
   password.trim();
-  console.log('['+password + ']')
   var salt = bcrypt.genSaltSync(10);
   var hashed = bcrypt.hashSync(password, salt);
-  console.log('['+hashed + ']')
   return hashed;
 }
 
-function findcallback(err, doc, cb){
-  if (err) {
-    console.log('error in finding user');
-    cb(false);
-  } else {
-    console.log('user found');
-    cb(true);
-  }
-}
 exports.userSchema = UserSchema;
 exports.checkPassword = checkPassword;
 exports.checkUserExists = checkUserExists;
