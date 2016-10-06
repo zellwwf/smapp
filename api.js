@@ -32,20 +32,9 @@ function usersPage(req,res,next)
 // Functions & Actions
 function registerUser(req,res,next)
 {
-  user.checkUserExists(req.body.email);
-  
-  if (foundUser) {
-    console.log('user already registered!');
-    res.redirect('/');
-  }
-  else
-  {
-    register(req.body)
-    console.log('redirect back to index');
-    res.redirect('/');
-  }
-  next();
-
+  console.log('First, Check if user exists');
+  user.checkUserExists(req.body.email, req.body, register);
+  res.redirect('/')
 }
 
 function loginUser(req,res,next)
@@ -80,11 +69,11 @@ function gcallback(req,res,next)
 
 }
 
-function register(userdata,next)
+function register(userdata)
 {
   console.log('registering a user');
   var userModel = app.db.model('User',user.UserSchema);
-  var newUser = new userModel(body);
+  var newUser = new userModel(userdata);
 
   var pass = user.hashPTPassword(newUser.password);
   newUser.password = pass;
