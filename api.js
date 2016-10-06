@@ -1,103 +1,107 @@
-var express = require('express');
-var router  = express.Router();
-var path    = require("path");
-var mongoose    = require('mongoose');
-var googleapi = require('googleapi');
-var app = require('./app');
-var user   = require('./models/user');
-var tempUser = require('./models/tempUser');
-var nev = require('email-verification')(mongoose);
-var jwt    = require('jsonwebtoken');
+var express     = require('express');
+var router      = express.Router();
+var path        = require("path");
+var googleapi   = require('googleapi');
+var pug         = require('pug');
+var bcrypt      = require('bcrypt');
+var app         = require('./app');
+var user        = require('./models/user');
 
-nev.configure({
-    verificationURL: 'http://myawesomewebsite.com/email-verification/${URL}',
-    persistentUserModel: user,
-    tempUserModel: tempUser,
-    tempUserCollection: 'myawesomewebsite_tempusers',
+//-------------------------------------------------------------------
+// Pages
+function registerPage(req,res,next)
+{
+  res.render('index.pug');
+}
 
-    transportOptions: {
-        service: 'Gmail',
-        auth: {
-            user: 'zellwwf@gmail.com',
-            pass: 'aXaXaX112211'
-        }
-    },
-    verifyMailOptions: {
-        from: 'Do Not Reply <zellwwf@gmail.com>',
-        subject: 'Please confirm account',
-        html: 'Click the following link to confirm your account:</p><p>${URL}</p>',
-        text: 'Please confirm your account by clicking the following link: ${URL}'
-    }
-}, function(error, options){
-});
-
-nev.confirmTempUser(url, function(err, user) {
-    if (err)
-        // handle error...
-
-    // user was found!
-    if (user) {
-        // optional
-        nev.sendConfirmationEmail(user['email_field_name'], function(err, info) {
-            // redirect to their profile...
-        });
-    }
-
-    // user's data probably expired...
-    else
-        // redirect to sign-up
-});
-
-nev.generateTempUserModel(tempUser);
-
-// sign up routes
-router.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname+'/public/signup.html'));
-});
-
-router.post('/', function(req, res) {
-  // create db user
-  var userModel = app.db.model('TempUser',user.TempUserSchema);
-  var newUser = new userModel(req.body);
-
-  newUser.save(function(err)
+function usersPage(req,res,next)
+{
+  if (app.loggedin)
   {
-    if (err) console.log('error saving');
-    else {
-      console.log('user saved');
-    }
-});
+    //Aunthorized
+    console.log('authorized user');
+    res.render('users.pug')
+  } else {
+    //Aunthorized access
+    console.log('unauthorized access');
+    res.status(401).send('unauthorized access');
+    res.render('users.pug', {message: 'unauthorized access'})
+  }
+}
 
-nev.createTempUser(newUser, function(err, existingPersistentUser, newTempUser) {
-    // some sort of error
-    if (err)
-        // handle error...
+// Functions & Actions
+function registerUser( req, res,next)
+{
+  if (user.checkUserExists(req.body.email)) {
+    console.log('user already registered!');
+    res.redirect('/');
+  }
+  else
+  {
+    console.log('user doesnt exist, register anew!');
+    var userModel = app.db.model('User',user.UserSchema);
+    var newUser = new userModel(req.body);
 
-    // user already exists in persistent collection...
-    if (existingPersistentUser)
-        // handle user's existence... violently.
+    // should set these somewhere else, safer and won't break... see user.js
+    console.log('hashing password:')
+    console.log('old pass: ' + newUser.password);
+    var pass = user.hashPTPassword(newUser.password);
+    newUser.password = pass;
+    newUser.save();
 
-    // a new user
-    if (newTempUser) {
-        var URL = newTempUser[nev.options.URLFieldName];
-        nev.sendVerificationEmail(email, URL, function(err, info) {
-            if (err)
-                // handle error...
+    console.log('user:' + req.body.email + ' registered...');
+    console.log('pass:' + newUser.password)
+    console.log('redirect back to index');
+    res.redirect('/');
+  }
+  next();
 
-            // flash message of success
-        });
+}
 
-    // user already exists in temporary collection...
-    } else {
-        // flash message of failure...
-    }
-});
-  //redirect to verify email page
-  res.redirect(200,'/');
-});
+function loginUser(req,res,next)
+{
+  if (app.loggedin) {
+    console.log('already logged in');
+  }
+  console.log('user logging in...');
+  user.checkPassword(req.body.semail,req.body.spassword, login)
+  res.redirect('/');
+}
 
-// login routes
-router.get('/api', function(req, res) {
-  res.sendFile(path.join(__dirname+'/users.html'));
-});
-module.exports = router
+function login(err,isMatch) {
+  if (isMatch) {
+  app.loggedin = true;
+  console.log('logged in!');
+ }
+ else {
+   app.loggedin = false;
+   console.log('failed to log in!');
+ }
+}
+
+function logoutUser(req,res,next)
+{
+  app.loggedin = false;
+}
+
+function gcallback(req,res,next)
+{
+
+}
+
+// HTTP ROUTES
+//  -- index post route (register)
+router.get('/', registerPage);
+router.post('/register', registerUser);
+
+//  -- a page that requires authentication (requires login)
+router.get('/users', usersPage);
+
+//  -- login/out route
+router.post('/login', loginUser);
+router.get('/logout', logoutUser);
+
+//  -- google callback route
+router.get('/auth/google/callback', gcallback);
+
+exports.router = router;

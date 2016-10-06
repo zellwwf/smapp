@@ -1,0 +1,23 @@
+html
+  head
+    title Hello App
+  body
+    h1 sign in
+    form(method='POST' action='/login')
+      label(for='name') email:
+      input#semail.form-control(type='text', placeholder='email@domain.com' name='semail')
+      label(for='password') password:
+      input#spassword.form-control(type='password', name='spassword')
+      button.btn.btn-primary(type='submit') Sign in
+
+    h1 sign up
+    form(method='POST' action='/register')
+      label(for='name') Name:
+      input#name.form-control(type='text', placeholder='first and last' name='name')
+      label(for='email') Email:
+      input#email.form-control(type='email', placeholder='name@email.com' name='email')
+      label(for='pw') Password:
+      input#pw.form-control(type='password' name='password')
+      label(for='pw2') Confirm Password:
+      input#pw2.form-control(type='password' name='confirmPassword')
+      button.btn.btn-primary(type='submit') Sign up
