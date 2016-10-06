@@ -1,6 +1,6 @@
 #Example App
 
-## The goals of this side
+## The goals of this app
 1. This site will ask you to either log in or sign up using google, or a local account.
 2. You can log in.
 3. You can signup locally, or automatically log in using google.

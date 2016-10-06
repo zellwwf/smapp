@@ -42,9 +42,6 @@ function registerUser( req, res,next)
     var userModel = app.db.model('User',user.UserSchema);
     var newUser = new userModel(req.body);
 
-    // should set these somewhere else, safer and won't break... see user.js
-    console.log('hashing password:')
-    console.log('old pass: ' + newUser.password);
     var pass = user.hashPTPassword(newUser.password);
     newUser.password = pass;
     newUser.save();

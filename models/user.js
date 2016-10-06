@@ -20,8 +20,13 @@ function checkUserExists(error,email)
 {
   console.log('Checking if user: '+ email + ' exists...');
   var found = false;
-  UserModel.findOne({email:email}, findcallback);
-
+  UserModel.findOne({email:email}, function(err, doc){
+    if (err) {
+      found = false;
+    } else {
+      found = true;
+    }
+  });
   return found;
 }
 
