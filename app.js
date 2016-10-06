@@ -39,6 +39,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(morgan('dev'));
 
+// Session Settings
+
 // Establish Routes
 app.use('/',router.router)
 console.log('routes established!');

@@ -12,6 +12,7 @@
     "bcrypt": "^0.8.7",
     "express": "^4.14.0",
     "googleapi": "^1.0.2",
+    "googleapis": "^14.0.0",
     "pug": "^2.0.0-beta6"
   }
 }

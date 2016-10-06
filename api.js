@@ -1,13 +1,16 @@
 var express     = require('express');
 var router      = express.Router();
 var path        = require("path");
-var googleapi   = require('googleapi');
+var google      = require('googleapis');
 var pug         = require('pug');
 var bcrypt      = require('bcrypt');
 var app         = require('./app');
 var user        = require('./models/user');
-
+var config      = require('./config');
 //-------------------------------------------------------------------
+var OAuth2 = google.auth.OAuth2;
+var oauth2Client = new OAuth2(config.oauth2_clientID, config.oauth2_client_secret, config.oauth2_callback)
+
 // Pages
 function registerPage(req,res,next)
 {
@@ -30,6 +33,15 @@ function usersPage(req,res,next)
 }
 
 // Functions & Actions
+function googleAuth(req, res, next)
+{
+  console.log('signing up with google');
+  var url = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: 'https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'
+  });
+  res.redirect(url);
+}
 function registerUser(req,res,next)
 {
   console.log('First, Check if user exists');
@@ -47,17 +59,6 @@ function loginUser(req,res,next)
   res.redirect('/');
 }
 
-function login(err,isMatch) {
-  if (isMatch) {
-  app.loggedin = true;
-  console.log('logged in!');
- }
- else {
-   app.loggedin = false;
-   console.log('failed to log in!');
- }
-}
-
 
 function logoutUser(req,res,next)
 {
@@ -66,9 +67,32 @@ function logoutUser(req,res,next)
 
 function gcallback(req,res,next)
 {
+  var code = req.query.code;  //Extract google's code
+  oauth2Client.getToken(code, function(err, tokens) {
+    if (err) {
+      console.log('Error Obtaining tokens');
+    } else {
+      console.log('... Obtaining google data');
+      oauth2Client.setCredentials(tokens);
+
+      console.log('... discovering');
+      var plus = google.plus('v1');
+
+      plus.people.get({userId: 'me', auth: oauth2Client}, function(error, response){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log(response);
+        }
+      });
+      //redirect after obtaining tokens?
+    }
+
+  });
 
 }
 
+//  -- callback: register
 function register(userdata)
 {
   console.log('registering a user');
@@ -78,6 +102,19 @@ function register(userdata)
   var pass = user.hashPTPassword(newUser.password);
   newUser.password = pass;
   newUser.save();
+}
+
+//  -- callback: login
+function login(err,isMatch)
+{
+  if (isMatch) {
+  app.loggedin = true;
+  console.log('logged in!');
+ }
+ else {
+   app.loggedin = false;
+   console.log('failed to log in!');
+ }
 }
 
 // HTTP ROUTES
@@ -92,7 +129,8 @@ router.get('/users', usersPage);
 router.post('/login', loginUser);
 router.get('/logout', logoutUser);
 
-//  -- google callback route
-router.get('/auth/google/callback', gcallback);
-
+//  -- google routes
+router.get('/google', googleAuth);
+router.get('/googlecallback', gcallback);
+//router.get('/googlecallback?code=')
 exports.router = router;
